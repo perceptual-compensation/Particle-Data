@@ -14,28 +14,42 @@ except:
 
 with open(filePath + "results", "rt") as f:
     results = f.read().split("\n")
-outFile = open(filePath + "results.json", "wt")
+jsonFile = open(filePath + "results.json", "wt")
+subjectFile = open(filePath + "subjects.txt", "wt")
+tableFile = open(filePath + "table.txt", "wt")
 
 struc = {}
+subjectFile.write("Subject\tUpload Time\tCriterion\tValue\n")
+tableFile.write("Subject\tItem\tSentence Type\tEvent\tTime\tPlayback Action\tPlayback Location\tQuestion\tAnswer\n")
 for line in results:
     if line and line[0] != "#":
         spl = line.split(",")
         if spl[2] == "Form":
-        	struc[spl[1]] = {"Time" : int(spl[0]), spl[7] : spl[8], "Items" : {}}
+        	struc[spl[1]] = {"Time" : int(spl[0]), "Criterion" : spl[7], "Value" : spl[8], "Items" : {}}
         else:
         	if not struc[spl[1]]["Items"].get(spl[3]):
-        		struc[spl[1]]["Items"][spl[3]] = {"Type" : spl[5], "Playback" : {}, "Responses" : {}}
+        		struc[spl[1]]["Items"][spl[3]] = {"Type" : spl[5], "Playback" : [], "Responses" : []}
         	if len(spl) == 10:
-        		struc[spl[1]]["Items"][spl[3]]["Playback"][spl[9]] = {"Action" : spl[7], "Location" : float(spl[8])}
+        		struc[spl[1]]["Items"][spl[3]]["Playback"].append({"Time" : int(spl[9]), "Action" : spl[7], "Location" : float(spl[8])})
         	elif len(spl) == 8:
         		struc[spl[1]]["Items"][spl[3]]["Stimulus"] = spl[7]
         	elif len(spl) == 9:
         		struc[spl[1]]["Items"][spl[3]]["Scenario"] = spl[7]
         	elif len(spl) == 11:
-        		if spl[7] != "NULL":
-        			struc[spl[1]]["Items"][spl[3]]["Responses"][spl[7]] = {"Answer" : spl[8], "Time" : int(spl[10])}
+        		if spl[8] != "NULL":
+        			struc[spl[1]]["Items"][spl[3]]["Responses"].append({"Time" : int(spl[10]), "Question" : spl[7], "Answer" : spl[8]})
 
-outFile.write(json.dumps(struc, sort_keys=True, indent=4))
-outFile.close()
+jsonFile.write(json.dumps(struc, sort_keys=True, indent=4))
+jsonFile.close()
 
+for subject, subContents in struc.items():
+	subjectFile.write("\t".join([subject, str(subContents["Time"]), subContents["Criterion"], subContents["Value"]]) + "\n")
+	for item, itemContents in subContents["Items"].items():
+		for event in itemContents["Playback"]:
+			tableFile.write("\t".join([subject, item, itemContents["Type"], "Playback", str(event["Time"]), event["Action"], str(event["Location"]), "", ""]) + "\n")
+		for event in itemContents["Responses"]:
+			tableFile.write("\t".join([subject, item, itemContents["Type"], "Response", str(event["Time"]), "", "", event["Question"], event["Answer"]]) + "\n")
+
+subjectFile.close()
+tableFile.close()
 
