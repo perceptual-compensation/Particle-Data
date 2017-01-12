@@ -1,5 +1,4 @@
 Subject	Item	Particle	Type	Stimulus	Event	Time	Playback Action	Playback Location	Question	Answer	Scenario
-<<<<<<< HEAD
 dda56d06a11f9ed5c587c16573916f21	85	oh_decl	exclam	Oh you can't be serious right now	Scenario						no he just asked a question. There was no answer given
 dda56d06a11f9ed5c587c16573916f21	85	oh_decl	exclam	Oh you can't be serious right now	Playback	10754	play	0.000523			
 dda56d06a11f9ed5c587c16573916f21	85	oh_decl	exclam	Oh you can't be serious right now	Playback	12857	pause	2.040952			
